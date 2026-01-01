@@ -185,31 +185,28 @@ def handle_mention(event, say):
     Handle @mention events in Slack.
     Cleans the message, analyzes intent, and posts the result.
     """
+    print("Got mentioned")
+    print()
     # Get the raw message text
     raw_text = event.get("text", "")
     
     # Clean the message (remove mention prefix)
     cleaned_text = clean_slack_message(raw_text)
     
+    # Get the thread timestamp to reply in the same thread
+    thread_ts = event.get("ts")
+    
     # If message is empty after cleaning, inform the user
     if not cleaned_text:
-        say("I received your mention, but the message appears to be empty. Please include your question or request!")
+        say("I received your mention, but the message appears to be empty. Please include your question or request!", thread_ts=thread_ts)
         return
     
     # Analyze the intent
     analysis = analyze_intent(cleaned_text)
     
-    # Format and post the result
+    # Format and post the result in the same thread
     summary = format_intent_summary(analysis)
-    say(summary)
-
-
-@app.event("message")
-def handle_message_events(body, logger):
-    """
-    Handle other message events (optional, for logging).
-    """
-    logger.info(body)
+    say(summary, thread_ts=thread_ts)
 
 
 def main():
